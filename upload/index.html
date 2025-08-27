@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #16bcde;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 20px;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    button[type="submit"] {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #218838;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      background-color: #0e7ff1;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+
+    li:hover {
+      background-color: #077aed;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Task Tracker</h1>
+  
+    <form action="http://localhost:3000/upload" method="POST" enctype="multipart/form-data">
+      <input type="text" name="title" placeholder="Enter Task Title" required>
+      <textarea name="description" placeholder="Enter Task Description"></textarea>
+      <button type="submit">Add Task</button>
+    </form>
+
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    document.querySelector('form[action="http://localhost:3000/upload"]').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const title = formData.get('title');
+      const description = formData.get('description');
+      
+      const response = await fetch('/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, description })
+      });
+
+      if (response.ok) {
+        alert('Task added successfully');
+        location.reload();
+      } else {
+        alert('Failed to add task');
+      }
+    });
+
+    window.onload = async () => {
+      const response = await fetch('/tasks');
+      const tasks = await response.json();
+
+      const taskList = document.getElementById('taskList');
+      tasks.forEach(task => {
+        const li = document.createElement('li');
+        li.textContent = `${task.title}: ${task.description}`;
+        taskList.appendChild(li);
+      });
+    };
+  </script>
+</body>
+</html>
